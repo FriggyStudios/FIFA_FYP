@@ -1,5 +1,6 @@
 df <- read.csv("fifa_players.csv", 
                  header = TRUE,
-                 sep = ",",)
+                 sep = ",")
+df
+df$ID <- NULL
 
-df$name
