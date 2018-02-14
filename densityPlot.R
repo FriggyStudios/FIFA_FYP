@@ -5,7 +5,7 @@ name <- "L. Messi"
 varComparing <- "finishing"
 ageRangeLeft <- 18
 ageRangeRight <- 28
-position <- "prefers_st"
+position <- "prefers_cb"
 
 df %>% 
   filter(df[,position] == "True") %>%
