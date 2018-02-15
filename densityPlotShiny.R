@@ -22,13 +22,33 @@ ui <- fluidPage(
       
       selectInput(inputId = "position",
                   label = "Position",
-                  choices = names(df)[c(155:181)],
-                  selected = "prefers_st"),
+                  choices = c("any",names(df)[c(156,160,163,165:170,172,173,181)]),
+                  selected = "any"),
+      
+      selectInput(inputId = "nationality",
+                  label = "Nationality",
+                  choices = c("any",levels(df$nationality)),
+                  selected = "any"),
+      
+      selectInput(inputId = "league",
+                 label = "League",
+                 choices = c("any",levels(df$league)),
+                 selected = "any"),
+      
+      selectInput(inputId = "club",
+                 label = "Club",
+                 choices = c("any",levels(df$club)),
+                 selected = "any"),
       
       sliderInput(inputId ="ageRange", 
                   label ="Age Range:",
                   min = 15, max = 50,
-                  value = c(15,50))
+                  value = c(15,50)),
+      
+      sliderInput(inputId ="valueRange", 
+                  label ="Value Range(Millions):",
+                  min = 0, max = 150,
+                  value = c(0,50))
     ),
     
     # Output
@@ -43,9 +63,12 @@ server <- function(input, output) {
   
   # Create the densityplot object the plotOutput function is expecting
   output$densityplot <- renderPlot({
-    df %>% 
-      filter(df[,input$position] == "True") %>%
-      filter(age >= input$ageRange[1], age <= input$ageRange[2]) %>%
+    df %>% filterPlayers(input$ageRange,
+                         input$valueRange,
+                         c(input$position),
+                         c(input$nationality),
+                         c(input$league),
+                         c(input$club)) %>%
       ggplot +
       aes_string(input$varComparing) +
       geom_density() +
