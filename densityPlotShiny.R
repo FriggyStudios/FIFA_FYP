@@ -1,5 +1,6 @@
 library(shiny)
 library(ggplot2)
+library(dplyr)
 
 # Define UI for application that plots features of movies
 ui <- fluidPage(
@@ -23,23 +24,26 @@ ui <- fluidPage(
       selectInput(inputId = "position",
                   label = "Position",
                   choices = c("any",names(df)[c(156,160,163,165:170,172,173,181)]),
-                  selected = "any"),
+                  selected = "any",
+                  multiple = T),
       
       selectInput(inputId = "nationality",
                   label = "Nationality",
                   choices = c("any",levels(df$nationality)),
-                  selected = "any"),
+                  selected = "any",
+                  multiple = T),
       
       selectInput(inputId = "league",
                  label = "League",
                  choices = c("any",levels(df$league)),
-                 selected = "any"),
-      
+                 selected = "any",
+                 multiple = T),
+  
       selectInput(inputId = "club",
                  label = "Club",
                  choices = c("any",levels(df$club)),
-                 selected = "any"),
-      
+                 selected = "any",
+                 multiple = T),    
       sliderInput(inputId ="ageRange", 
                   label ="Age Range:",
                   min = 15, max = 50,
@@ -65,10 +69,10 @@ server <- function(input, output) {
   output$densityplot <- renderPlot({
     df %>% filterPlayers(input$ageRange,
                          input$valueRange,
-                         c(input$position),
-                         c(input$nationality),
-                         c(input$league),
-                         c(input$club)) %>%
+                         input$position,
+                         input$nationality,
+                         input$league,
+                         input$club) %>%
       ggplot +
       aes_string(input$varComparing) +
       geom_density() +
