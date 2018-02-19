@@ -4,8 +4,7 @@ filterPlayers <- function(x,ageRange,value,positions,nationalities,leagues,clubs
     filter(eur_value >= value[1]*1000000, eur_value <= value[2]*1000000)
     
     playersRemove <- c()
-    
-    if(positions[1] != "any"){
+    if(!is.null(positions)){
       for(i in 1:length(xFiltered[,1])){
         remove <- T
         for(j in 1:length(positions)){
@@ -32,7 +31,7 @@ filterPlayers <- function(x,ageRange,value,positions,nationalities,leagues,clubs
 
 filterCondition <- function(x,col,names){
   playersRemove <- c()
-  if(names[1] != "any"){
+  if(!is.null(names)){
     for(i in 1:length(x[,1])){
       remove <- T
       for(j in 1:length(names)){

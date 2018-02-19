@@ -13,7 +13,7 @@ ui <- fluidPage(
       
       selectInput(inputId = "player",
                   label = "Player",
-                  choices = df[,1],
+                  choices = df[,2],
                   selected = "prefers_st"),
       
       selectInput(inputId = "varComparing", 
@@ -23,26 +23,26 @@ ui <- fluidPage(
       
       selectInput(inputId = "position",
                   label = "Position",
-                  choices = c("any",names(df)[c(156,160,163,165:170,172,173,181)]),
-                  selected = "any",
+                  choices = c(names(df)[c(156,160,163,165:170,172,173,181)]),
+                  selected = c(),
                   multiple = T),
       
       selectInput(inputId = "nationality",
                   label = "Nationality",
-                  choices = c("any",levels(df$nationality)),
-                  selected = "any",
+                  choices = c(levels(df$nationality)),
+                  selected = c(),
                   multiple = T),
       
       selectInput(inputId = "league",
                  label = "League",
-                 choices = c("any",levels(df$league)),
-                 selected = "any",
+                 choices = c(levels(df$league)),
+                 selected = c(),
                  multiple = T),
   
       selectInput(inputId = "club",
                  label = "Club",
-                 choices = c("any",levels(df$club)),
-                 selected = "any",
+                 choices = c(levels(df$club)),
+                 selected = c(),
                  multiple = T),    
       sliderInput(inputId ="ageRange", 
                   label ="Age Range:",
@@ -76,7 +76,7 @@ server <- function(input, output) {
       ggplot +
       aes_string(input$varComparing) +
       geom_density() +
-      geom_vline(xintercept=df[df$name == input$player,input$varComparing],color = "blue") +
+      geom_vline(xintercept=df[df$full_name == input$player,input$varComparing],color = "blue") +
       coord_cartesian(xlim = c(0, 100)) 
   })
 }
