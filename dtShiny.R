@@ -10,8 +10,7 @@ ui <- fluidPage(
 # Define server function required to create the scatterplot
 server <- function(input, output) {
   
-    dfDT = df[,comparableStats]
-    output$tbl = renderDataTable(dfDT, options = list(
+    output$tbl = renderDataTable(df[,comparableStats], options = list(
     pageLength = 5, autoWidth = TRUE))
   }
 

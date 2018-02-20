@@ -1,6 +1,6 @@
 library(dplyr)
 
-namePlayer <- "L. Messi"
+namePlayer <- "M. Neuer"
 ageRangeLeft <- 18
 ageRangeRight <- 35
 priceRangeLeft <- 0
@@ -8,7 +8,7 @@ priceRangeRight <- 100
 position <- "any"
 
 
-minDistance <- function(x,compare,gk) {
+nearest <- function(x,compare,gk) {
   distances <-  c()
   if(gk == "False")
     range <- 30:58
@@ -21,11 +21,11 @@ minDistance <- function(x,compare,gk) {
     }
     distances <- c(distances,distance)
   }
-  distances
+  (df %>% 
+    subset(full_name %in% x[(order(distances))[1:10],"full_name"]) )
 }
 
 displayNames <- function(x){
-    print(dfLocal$name[x[1:10]])
 }
 
 positionFilter <- function(x,pos){
@@ -35,14 +35,9 @@ positionFilter <- function(x,pos){
     filter(df[,position] == "True")
 }
 
-dfLocal <- df %>%
+df[1:1000,] %>%
   positionFilter(position) %>%
-  filter(name != namePlayer) %>%
+  filter(full_name != namePlayer) %>%
   filter(age >= ageRangeLeft, age <= ageRangeRight) %>%
-  filter(eur_value >= priceRangeLeft*1000000, eur_value <= priceRangeRight*1000000)
-  
-
-  dfLocal %>% 
-    minDistance(df[df$name == namePlayer,],df$prefers_gk[df$name == namePlayer]) %>%
-    order %>%
-    displayNames
+  filter(eur_value >= priceRangeLeft*1000000, eur_value <= priceRangeRight*1000000) %>% 
+  nearest(df[df$name == namePlayer,],df$prefers_gk[df$name == namePlayer])
