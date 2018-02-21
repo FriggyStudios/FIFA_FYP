@@ -13,12 +13,13 @@ ui <- fluidPage(
       
       selectInput(inputId = "player",
                   label = "Player",
-                  choices = df[,2]),
+                  choices = df[,2],
+                  selected = "Lionel Messi"),
       
       selectInput(inputId = "position",
                   label = "Position",
                   choices = c(names(df)[c(156,160,163,165:170,172,173,181)]),
-                  selected = c(),
+                  selected = c("prefers_st"),
                   multiple = T),
       
       selectInput(inputId = "nationality",
@@ -41,12 +42,12 @@ ui <- fluidPage(
       sliderInput(inputId ="ageRange", 
                   label ="Age Range:",
                   min = 15, max = 50,
-                  value = c(15,50)),
+                  value = c(15,30)),
       
       sliderInput(inputId ="valueRange", 
                   label ="Value Range(Millions):",
                   min = 0, max = 150,
-                  value = c(0,150))
+                  value = c(0,30))
     ),
     
     # Output

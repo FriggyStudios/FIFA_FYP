@@ -1,13 +1,5 @@
 library(dplyr)
 
-namePlayer <- "M. Neuer"
-ageRangeLeft <- 18
-ageRangeRight <- 35
-priceRangeLeft <- 0
-priceRangeRight <- 100
-position <- "any"
-
-
 nearest <- function(x,compare,gk) {
   distances <-  c()
   if(gk == "False")
@@ -24,20 +16,3 @@ nearest <- function(x,compare,gk) {
   (df %>% 
     subset(full_name %in% x[(order(distances))[1:10],"full_name"]) )
 }
-
-displayNames <- function(x){
-}
-
-positionFilter <- function(x,pos){
-  if(pos == "any")
-    x
-  else
-    filter(df[,position] == "True")
-}
-
-df[1:1000,] %>%
-  positionFilter(position) %>%
-  filter(full_name != namePlayer) %>%
-  filter(age >= ageRangeLeft, age <= ageRangeRight) %>%
-  filter(eur_value >= priceRangeLeft*1000000, eur_value <= priceRangeRight*1000000) %>% 
-  nearest(df[df$name == namePlayer,],df$prefers_gk[df$name == namePlayer])

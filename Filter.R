@@ -20,30 +20,17 @@ filterPlayers <- function(x,ageRange,value,positions,nationalities,leagues,clubs
       xFiltered <- xFiltered[-playersRemove,]
       playersRemove <- c()
     }
+    if(is.null(nationalities))
+      nationalities <- levels(x$nationality)
+    if(is.null(leagues))
+      leagues <- levels(x$league)
+    if(is.null(clubs))
+      clubs <- levels(x$club)
     
     xFiltered <- xFiltered %>%
-      filterCondition("nationality",nationalities) %>%
-      filterCondition("league",leagues) %>%
-      filterCondition("club",clubs)
+      subset(nationality %in% nationalities) %>%
+      subset(league %in% leagues) %>%
+      subset(club %in% clubs)
     
     xFiltered
-}
-
-filterCondition <- function(x,col,names){
-  playersRemove <- c()
-  if(!is.null(names)){
-    for(i in 1:length(x[,1])){
-      remove <- T
-      for(j in 1:length(names)){
-        if(x[i,col] == names[j]){
-          remove <- F
-          break
-        }
-      }
-      if(remove)
-        playersRemove <- c(playersRemove,i)
-    }
-    x <- x[-playersRemove,]
-  }
-  x
 }
