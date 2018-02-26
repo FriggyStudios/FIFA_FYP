@@ -42,12 +42,12 @@ ui <- fluidPage(
       sliderInput(inputId ="ageRange", 
                   label ="Age Range:",
                   min = 15, max = 50,
-                  value = c(15,30)),
+                  value = c(18,35)),
       
       sliderInput(inputId ="valueRange", 
                   label ="Value Range(Millions):",
                   min = 0, max = 150,
-                  value = c(0,30))
+                  value = c(5,150))
     ),
     
     # Output
@@ -61,7 +61,7 @@ ui <- fluidPage(
 server <- function(input, output) {
   
   output$tbl =
-    renderDataTable(df %>%
+    renderDataTable((df %>% 
                       filter(full_name != input$player) %>%
                       filterPlayers(input$ageRange,
                                     input$valueRange,
@@ -69,8 +69,7 @@ server <- function(input, output) {
                                     input$nationality,
                                     input$league,
                                     input$club) %>%
-                      nearest(df[df$full_name == input$player,],
-                              df$prefers_gk[df$full_name == input$player]),
+                      nearest(df[df$full_name == input$player,]))[1:10,comparableStats],
       options = list(
     pageLength = 10, autoWidth = TRUE))
 }

@@ -1,8 +1,8 @@
 library(dplyr)
 
-nearest <- function(x,compare,gk) {
+nearest <- function(x,compare,indexReturn = FALSE) {
   distances <-  c()
-  if(gk == "False")
+  if(compare$prefers_gk == "False")
     range <- 30:58
   else
     range <- 59:63
@@ -13,6 +13,8 @@ nearest <- function(x,compare,gk) {
     }
     distances <- c(distances,distance)
   }
-  (df %>% 
-    subset(full_name %in% x[(order(distances))[1:10],"full_name"]) )
+  if(indexReturn)
+    (order(distances))
+  else
+    x[(order(distances)),]
 }
