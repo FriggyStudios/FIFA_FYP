@@ -11,10 +11,17 @@ ui <- fluidPage(
     # Inputs
     sidebarPanel(
       
-      selectInput(inputId = "player",
-                  label = "Player",
-                  choices = df[,2],
-                  selected = "Lionel Messi"),
+      checkboxInput(inputId = "findMe", label = "Find Me", value = FALSE),
+      
+      checkboxInput(inputId = "displayWeights", label = "Display Weights", value = FALSE),
+      
+      uiOutput(outputId = 'weights'),
+      
+      uiOutput(outputId = "playerSearch"),
+      
+      uiOutput(outputId = "mePosition"),
+      
+      uiOutput(outputId = "findMeStats"),
       
       selectInput(inputId = "position",
                   label = "Position",
@@ -52,15 +59,69 @@ ui <- fluidPage(
     
     # Output
     mainPanel(
-      dataTableOutput(outputId = "tbl")
+      conditionalPanel( condition = "!input.findMe",
+        dataTableOutput(outputId = "tblSearch")
+      ),
+      conditionalPanel( condition = "input.findMe",
+        dataTableOutput(outputId = "tblFindMe")
+      )
     )
   )
 )
 
 # Define server function required to create the scatterplot
-server <- function(input, output) {
+server <- function(input, output,session) {
   
-  output$tbl =
+  
+  output$mePosition <- renderUI({
+  selectInput(inputId = 'myPosition',
+              label = 'Your Position',
+              choices = c(names(df)[c(156,160,163,165:170,172,173,181)]),
+              selected = "prefers_st")
+  })
+  
+  output$findMeStats <- renderUI({
+    if(input$findMe){
+      #My stats
+      lapply(30:63, function(i) {
+        sliderInput(inputId = paste0('myStat', i),
+                    label = names(df)[i],
+                    min = 0, max = 99,
+                    value = 0)
+      })
+    }
+    
+  })
+  
+  output$playerSearch <- renderUI({
+    if(!input$findMe){
+      selectInput(inputId = "player",
+                  label = "Player",
+                  choices = df[,2],
+                  selected = "Lionel Messi")
+    }
+  })
+  
+  
+  # The dynamic input definition
+  output$weights <- renderUI({
+    
+    if (input$displayWeights) {
+      #Weights
+      lapply(30:63, function(i) {
+        sliderInput(inputId = paste0('weight', i),
+                    label = paste0(names(df)[i]," weight"),
+                    min = 0, max = 1,
+                    value = 0.5)
+      })
+    }
+      else {
+      return(NULL)
+    }
+    
+  })
+      searchPlayerCompare <- reactive({df[df$full_name == input$player,]})
+      output$tblSearch =
     renderDataTable((df %>% 
                       filter(full_name != input$player) %>%
                       filterPlayers(input$ageRange,
@@ -69,9 +130,32 @@ server <- function(input, output) {
                                     input$nationality,
                                     input$league,
                                     input$club) %>%
-                      nearest(df[df$full_name == input$player,]))[1:10,comparableStats],
+                      nearest(searchPlayerCompare()))[,comparableStats],
       options = list(
     pageLength = 10, autoWidth = TRUE))
+      
+    myPlayerCompare <- reactive({c( lapply(1:29,function(i){i}),
+      lapply(30:63,function(i){input[[paste0("myStat",i)]]}),
+      lapply(64:180,function(i){i}),
+    lapply(181,function(i){
+      if(input$myPosition == "prefers_gk")
+        'True'
+      else
+        'False'
+    }))
+    })
+    output$tblFindMe =
+      renderDataTable((df %>% 
+                         filter(full_name != input$player) %>%
+                         filterPlayers(input$ageRange,
+                                       input$valueRange,
+                                       input$position,
+                                       input$nationality,
+                                       input$league,
+                                       input$club) %>%
+                         nearest(myPlayerCompare()))[,comparableStats],
+      options = list(
+        pageLength = 10, autoWidth = TRUE))
 }
 
 # Create a Shiny app object

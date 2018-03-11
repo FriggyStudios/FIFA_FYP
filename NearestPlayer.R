@@ -2,7 +2,7 @@ library(dplyr)
 
 nearest <- function(x,compare,indexReturn = FALSE) {
   distances <-  c()
-  if(compare$prefers_gk == "False")
+  if(compare[181] == "False") #prefers gk
     range <- 30:58
   else
     range <- 59:63

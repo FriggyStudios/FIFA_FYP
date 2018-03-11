@@ -18,7 +18,7 @@ ui <- fluidPage(
       
       selectInput(inputId = "varComparing", 
                   label = "Variable Comparing",
-                  choices = names(df)[c(19:23,30:63)],
+                  choices = names(df)[c(6,9,10,13:23,30:63)],
                   selected = "pac"),
       
       selectInput(inputId = "position",
@@ -76,8 +76,7 @@ server <- function(input, output) {
       ggplot +
       aes_string(input$varComparing) +
       geom_density() +
-      geom_vline(xintercept=df[df$full_name == input$player,input$varComparing],color = "blue") +
-      coord_cartesian(xlim = c(0, 100)) 
+      geom_vline(xintercept=df[df$full_name == input$player,input$varComparing],color = "blue") 
   })
 }
 

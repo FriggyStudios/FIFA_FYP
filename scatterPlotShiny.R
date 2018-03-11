@@ -25,7 +25,8 @@ ui <- fluidPage(
       selectInput(inputId = "z",
                   label = "Color by:",
                   choices = names(df)[c(comparableStats,155:181)],
-                  selected = "weak_foot")
+                  selected = "weak_foot",
+                  multiple = T)
     ),
     
     # Output
