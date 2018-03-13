@@ -2,6 +2,7 @@ library(shiny)
 library(DT)
 library(dplyr)
 library(fmsb)
+library(class)
 
 # Define UI for application that plots features of movies
 ui <- fluidPage(
@@ -12,6 +13,7 @@ ui <- fluidPage(
     # Inputs
     sidebarPanel(
       checkboxInput(inputId = "findMe", label = "Find Me", value = FALSE),
+      checkboxInput(inputId = "render", label = "Render", value = TRUE),
       tabsetPanel(type = "tabs",
                   tabPanel("Player",
                            uiOutput(outputId = "playerSearch")),
@@ -58,10 +60,10 @@ ui <- fluidPage(
     
     # Output
     mainPanel(
-      conditionalPanel( condition = "!input.findMe",
+      conditionalPanel( condition = "!input.findMe && input.render",
         dataTableOutput(outputId = "tblSearch")
       ),
-      conditionalPanel( condition = "input.findMe",
+      conditionalPanel( condition = "input.findMe && input.render",
         dataTableOutput(outputId = "tblFindMe")
       )
     )
@@ -110,7 +112,12 @@ server <- function(input, output,session) {
     
   })
     weights <- reactive({c( lapply(1:29,function(i){i}),
-                                    lapply(30:63,function(i){input[[paste0("weight",i)]]}),
+                                    lapply(30:63,function(i){
+                                      if(is.null(input[[paste0("weight",i)]])){
+                                        return(1)
+                                      }
+                                      else { return (input[[paste0("weight",i)]])}
+                                      }),
                                     lapply(64:181,function(i){i}))})
     
       searchPlayerCompare <- reactive({df[df$full_name == input$player,]})
@@ -127,7 +134,11 @@ server <- function(input, output,session) {
     pageLength = 10, autoWidth = TRUE))
       
     myPlayerCompare <- reactive({c( lapply(1:29,function(i){i}),
-      lapply(30:63,function(i){input[[paste0("myStat",i)]]}),
+      lapply(30:63,function(i){if(is.null(input[[paste0("myStat",i)]])){
+        return(0)
+      }
+        else { return (input[[paste0("myStat",i)]])}
+      }),
       lapply(64:180,function(i){i}),
       lapply(181,function(i){
       if(input$myPosition == "prefers_gk")
@@ -136,6 +147,7 @@ server <- function(input, output,session) {
         'False'
     }),lapply(-1,function(i){i}))
     })
+    
     output$tblFindMe =
       renderDataTable((df %>%
                          filterPlayers(input$ageRange,

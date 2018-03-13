@@ -3,7 +3,6 @@ library(class)
 
 nearest <- function(x,compare,weights) {
   
-  
   if(compare[181] == "False") #prefers gk
     range <- 30:58
   else
