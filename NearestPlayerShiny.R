@@ -13,7 +13,7 @@ ui <- fluidPage(
       
       checkboxInput(inputId = "findMe", label = "Find Me", value = FALSE),
       
-      checkboxInput(inputId = "displayWeights", label = "Display Weights", value = FALSE),
+      checkboxInput(inputId = "displayWeights", label = "Display Weights", value = TRUE),
       
       uiOutput(outputId = 'weights'),
       
@@ -74,10 +74,12 @@ server <- function(input, output,session) {
   
   
   output$mePosition <- renderUI({
+    if(input$findMe){
   selectInput(inputId = 'myPosition',
               label = 'Your Position',
               choices = c(names(df)[c(156,160,163,165:170,172,173,181)]),
               selected = "prefers_st")
+    }
   })
   
   output$findMeStats <- renderUI({
@@ -120,40 +122,42 @@ server <- function(input, output,session) {
     }
     
   })
+    weights <- reactive({c( lapply(1:29,function(i){i}),
+                                    lapply(30:63,function(i){input[[paste0("weight",i)]]}),
+                                    lapply(64:181,function(i){i}))})
+    
       searchPlayerCompare <- reactive({df[df$full_name == input$player,]})
       output$tblSearch =
-    renderDataTable((df %>% 
-                      filter(full_name != input$player) %>%
+    renderDataTable((df  %>%
                       filterPlayers(input$ageRange,
                                     input$valueRange,
                                     input$position,
                                     input$nationality,
                                     input$league,
                                     input$club) %>%
-                      nearest(searchPlayerCompare()))[,comparableStats],
+                      nearest(searchPlayerCompare(),weights()))[,comparableStats],
       options = list(
     pageLength = 10, autoWidth = TRUE))
       
     myPlayerCompare <- reactive({c( lapply(1:29,function(i){i}),
       lapply(30:63,function(i){input[[paste0("myStat",i)]]}),
       lapply(64:180,function(i){i}),
-    lapply(181,function(i){
+      lapply(181,function(i){
       if(input$myPosition == "prefers_gk")
         'True'
       else
         'False'
-    }))
+    }),lapply(-1,function(i){i}))
     })
     output$tblFindMe =
-      renderDataTable((df %>% 
-                         filter(full_name != input$player) %>%
+      renderDataTable((df %>%
                          filterPlayers(input$ageRange,
                                        input$valueRange,
                                        input$position,
                                        input$nationality,
                                        input$league,
                                        input$club) %>%
-                         nearest(myPlayerCompare()))[,comparableStats],
+                         nearest(myPlayerCompare(),weights()))[,comparableStats],
       options = list(
         pageLength = 10, autoWidth = TRUE))
 }
