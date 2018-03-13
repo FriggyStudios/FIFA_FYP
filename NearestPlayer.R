@@ -2,17 +2,20 @@ library(dplyr)
 library(class)
 
 nearest <- function(x,compare,weights) {
-  distances <-  c()
+  
+  
   if(compare[181] == "False") #prefers gk
     range <- 30:58
   else
     range <- 59:63
   xWeighted <- x
+  if(!is.null(weights)){
   for(i in 1:nrow(xWeighted)){
     for(j in range){
       xWeighted[i,j] <- as.numeric(xWeighted[[i,j]]) * as.numeric(weights[j])
     }
   }
+}
   for(j in range){
     compare[j] <- as.numeric(compare[j]) * as.numeric((weights[j]))
   }

@@ -1,6 +1,7 @@
 library(shiny)
 library(DT)
 library(dplyr)
+library(fmsb)
 
 # Define UI for application that plots features of movies
 ui <- fluidPage(
@@ -10,52 +11,50 @@ ui <- fluidPage(
     
     # Inputs
     sidebarPanel(
-      
       checkboxInput(inputId = "findMe", label = "Find Me", value = FALSE),
-      
-      checkboxInput(inputId = "displayWeights", label = "Display Weights", value = TRUE),
-      
-      uiOutput(outputId = 'weights'),
-      
-      uiOutput(outputId = "playerSearch"),
-      
-      uiOutput(outputId = "mePosition"),
-      
-      uiOutput(outputId = "findMeStats"),
-      
-      selectInput(inputId = "position",
-                  label = "Position",
-                  choices = c(names(df)[c(156,160,163,165:170,172,173,181)]),
-                  selected = c("prefers_st"),
-                  multiple = T),
-      
-      selectInput(inputId = "nationality",
-                  label = "Nationality",
-                  choices = c(levels(df$nationality)),
-                  selected = c(),
-                  multiple = T),
-      
-      selectInput(inputId = "league",
-                  label = "League",
-                  choices = c(levels(df$league)),
-                  selected = c(),
-                  multiple = T),
-      
-      selectInput(inputId = "club",
-                  label = "Club",
-                  choices = c(levels(df$club)),
-                  selected = c(),
-                  multiple = T),    
-      sliderInput(inputId ="ageRange", 
-                  label ="Age Range:",
-                  min = 15, max = 50,
-                  value = c(18,35)),
-      
-      sliderInput(inputId ="valueRange", 
-                  label ="Value Range(Millions):",
-                  min = 0, max = 150,
-                  value = c(5,150))
-    ),
+      tabsetPanel(type = "tabs",
+                  tabPanel("Player",
+                           uiOutput(outputId = "playerSearch")),
+                  tabPanel("Weights",
+                           uiOutput(outputId = 'weights')),
+                  tabPanel("Me!",
+                           uiOutput(outputId = "mePosition"),
+                           uiOutput(outputId = "findMeStats")
+                           ),
+                  tabPanel("Subsetting",
+                           selectInput(inputId = "position",
+                                       label = "Position",
+                                       choices = c(names(df)[c(156,160,163,165:170,172,173,181)]),
+                                       selected = c(),
+                                       multiple = T),
+                           
+                           selectInput(inputId = "nationality",
+                                       label = "Nationality",
+                                       choices = c(levels(df$nationality)),
+                                       selected = c(),
+                                       multiple = T),
+                           
+                           selectInput(inputId = "league",
+                                       label = "League",
+                                       choices = c(levels(df$league)),
+                                       selected = c(),
+                                       multiple = T),
+                           
+                           selectInput(inputId = "club",
+                                       label = "Club",
+                                       choices = c(levels(df$club)),
+                                       selected = c(),
+                                       multiple = T),    
+                           sliderInput(inputId ="ageRange", 
+                                       label ="Age Range:",
+                                       min = 15, max = 50,
+                                       value = c(18,35)),
+                           
+                           sliderInput(inputId ="valueRange", 
+                                       label ="Value Range(Millions):",
+                                       min = 0, max = 150,
+                                       value = c(5,150))
+                  ))),
     
     # Output
     mainPanel(
@@ -74,16 +73,13 @@ server <- function(input, output,session) {
   
   
   output$mePosition <- renderUI({
-    if(input$findMe){
   selectInput(inputId = 'myPosition',
               label = 'Your Position',
               choices = c(names(df)[c(156,160,163,165:170,172,173,181)]),
               selected = "prefers_st")
-    }
   })
   
   output$findMeStats <- renderUI({
-    if(input$findMe){
       #My stats
       lapply(30:63, function(i) {
         sliderInput(inputId = paste0('myStat', i),
@@ -91,24 +87,19 @@ server <- function(input, output,session) {
                     min = 0, max = 99,
                     value = 0)
       })
-    }
-    
   })
   
   output$playerSearch <- renderUI({
-    if(!input$findMe){
       selectInput(inputId = "player",
                   label = "Player",
                   choices = df[,2],
                   selected = "Lionel Messi")
-    }
   })
   
   
   # The dynamic input definition
   output$weights <- renderUI({
     
-    if (input$displayWeights) {
       #Weights
       lapply(30:63, function(i) {
         sliderInput(inputId = paste0('weight', i),
@@ -116,10 +107,6 @@ server <- function(input, output,session) {
                     min = 0, max = 1,
                     value = 0.5)
       })
-    }
-      else {
-      return(NULL)
-    }
     
   })
     weights <- reactive({c( lapply(1:29,function(i){i}),
