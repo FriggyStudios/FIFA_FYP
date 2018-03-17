@@ -13,7 +13,7 @@ radarchart( data  , axistype=1 ,
             pcol=c(rgb(0.2,0.5,0.5,0.8),rgb(0.8,0.2,0.2,0.8)) , pfcol=c(rgb(0.2,0.5,0.5,0.4),rgb(0.8,0.2,0.2,0.4)) , plwd=4 ,
             
             #custom the grid
-            cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,99,5), cglwd=0.8,
+            cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,99,25), cglwd=0.8,
             
             #custom labels
             vlcex=0.65

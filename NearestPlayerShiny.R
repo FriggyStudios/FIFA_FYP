@@ -4,6 +4,29 @@ library(dplyr)
 library(fmsb)
 library(class)
 
+
+predictPosition <- function(nearestToMe){
+  position <- c()
+  for(i in 156:182){
+    position[i] <- 0
+    for(j in 1:length(nearestToMe[1])){
+     if(nearestToMe[[j,i]] == "True"){
+     position[i] <- as.numeric(position[i]) + 1
+    }
+     }
+  }
+  paste("Predicted position: ",(names(df))[which.max(position)-1])
+}
+predictValue <- function(nearestToMe){
+  value <- 0
+  i = 14
+  for(j in 1:length(nearestToMe[1])){
+    value <- value + as.numeric(nearestToMe[[j,i]])
+  }
+  value <- value/length(nearestToMe[1])
+  paste("Predicted value: ",value," Euro")
+}
+
 # Define UI for application that plots features of movies
 ui <- fluidPage(
   
@@ -58,7 +81,7 @@ ui <- fluidPage(
                                        value = c(5,150))
                   ))),
     
-    # Output
+    # Output 
     mainPanel(
       tabsetPanel(type = "tabs",
                   tabPanel("Table",
@@ -66,18 +89,21 @@ ui <- fluidPage(
           dataTableOutput(outputId = "tblSearch")
         ),
         conditionalPanel( condition = "input.findMe && input.render",
+          textOutput("PredictedPosition"),
+          textOutput("PredictedValue"),
           dataTableOutput(outputId = "tblFindMe")
         )),
                 tabPanel("Radar",
         conditionalPanel( condition = "!input.findMe && input.render",
           plotOutput('radarSearch'),
+          textOutput("radarOutputSearch"),
           uiOutput(outputId = "radarSearchCompare")
         ),
         conditionalPanel( condition = "input.findMe && input.render",
           plotOutput('radarFindMe'),
+          textOutput("radarOutputMe"),
           uiOutput(outputId = "radarMeCompare")
         )
-        
         )
       )
     )
@@ -87,7 +113,8 @@ ui <- fluidPage(
 # Define server function required to create the scatterplot
 server <- function(input, output,session) {
   
-  
+  output$radarOutputSearch <- renderText({"Blue: Player Searching, Red: Player Comparing"})
+  output$radarOutputMe <- renderText({"Blue: Player You, Red: Player Comparing"})
   output$mePosition <- renderUI({
   selectInput(inputId = 'myPosition',
               label = 'Your Position',
@@ -143,9 +170,10 @@ server <- function(input, output,session) {
                                     input$nationality,
                                     input$league,
                                     input$club) %>%
-                      nearest(searchPlayerCompare(),weights()))[,comparableStats],
+                      nearest(searchPlayerCompare(),weights()))[,c(1,3,4,7,8,9,10,11,13,14,15,17:65)],
       options = list(
     pageLength = 10, autoWidth = TRUE))
+      
       
     myPlayerCompare <- reactive({c( lapply(1:29,function(i){i}),
       lapply(30:63,function(i){if(is.null(input[[paste0("myStat",i)]])){
@@ -156,21 +184,27 @@ server <- function(input, output,session) {
       lapply(64:180,function(i){i}),
       lapply(181,function(i){
       if(input$myPosition == "prefers_gk")
-        'False'
-      else
         'True'
+      else
+        'False'
     }),lapply(-1,function(i){i}))
     })
     
+    nearestToMe <- reactive({df %>%
+        filterPlayers(input$ageRange,
+                      input$valueRange,
+                      input$position,
+                      input$nationality,
+                      input$league,
+                      input$club) %>%
+        nearest(myPlayerCompare(),weights())})
+    
+    output$PredictedPosition <- renderText({ predictPosition(nearestToMe()) })
+    output$PredictedValue <- renderText({ predictValue(nearestToMe()) })
+     
     output$tblFindMe =
-      renderDataTable((df %>%
-                         filterPlayers(input$ageRange,
-                                       input$valueRange,
-                                       input$position,
-                                       input$nationality,
-                                       input$league,
-                                       input$club) %>%
-                         nearest(myPlayerCompare(),weights()))[,comparableStats],
+      renderDataTable((
+                         nearestToMe())[,c(1,3,4,7,8,9,10,11,13,14,15,17:65)],
       options = list(
         pageLength = 10, autoWidth = TRUE))
     
@@ -184,7 +218,7 @@ server <- function(input, output,session) {
                                               input$nationality,
                                               input$league,
                                               input$club) %>%
-                    nearest(searchPlayerCompare(),weights()))[,2],
+                    nearest(searchPlayerCompare(),weights(),error=FALSE))[,2],
                   selected = c())
     })
     
@@ -198,7 +232,7 @@ server <- function(input, output,session) {
                                              input$nationality,
                                              input$league,
                                              input$club) %>%
-                               nearest(myPlayerCompare(),weights()))[,2],
+                               nearest(myPlayerCompare(),weights(),error=FALSE))[,2],
                   selected = c())
     })
     
@@ -219,7 +253,7 @@ server <- function(input, output,session) {
                   pcol=c(rgb(0.2,0.5,0.5,0.8),rgb(0.8,0.2,0.2,0.8)) , pfcol=c(rgb(0.2,0.5,0.5,0.4),rgb(0.8,0.2,0.2,0.4)) , plwd=4 ,
                   
                   #custom the grid
-                  cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,99,5), cglwd=0.8,
+                  cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,99,25), cglwd=0.8,
                   
                   #custom labels
                   vlcex=0.65
@@ -244,7 +278,7 @@ server <- function(input, output,session) {
                 pcol=c(rgb(0.2,0.5,0.5,0.8),rgb(0.8,0.2,0.2,0.8)) , pfcol=c(rgb(0.2,0.5,0.5,0.4),rgb(0.8,0.2,0.2,0.4)) , plwd=4 ,
                 
                 #custom the grid
-                cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,99,5), cglwd=0.8,
+                cglcol="grey", cglty=1, axislabcol="grey", caxislabels=seq(0,99,25), cglwd=0.8,
                 
                 #custom labels
                 vlcex=0.65
@@ -254,3 +288,4 @@ server <- function(input, output,session) {
 
 # Create a Shiny app object
 shinyApp(ui = ui, server = server)
+

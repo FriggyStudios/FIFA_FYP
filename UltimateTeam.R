@@ -11,7 +11,7 @@ orderPosition <- function(positionToOrder){
     }
   return (df %>% 
     filterPlayers(positions = positionToOrder) %>%
-    nearest(godPlayer,indexReturn=F))
+      legacy_nearest(godPlayer))
 }
 
 addPlayer <- function(team,rank){
@@ -58,12 +58,11 @@ makeTeam <-function(gkRank,cbRank,lbRank,rbRank,cmRank,lmRank,rmRank,stRank){
   return (team)
 }
 
-
-#ordered_gk <- orderPosition(c("prefers_gk"))
-#ordered_cb <- orderPosition(c("prefers_cb"))
-#ordered_lb <- orderPosition(c("prefers_lb"))
-#ordered_rb <- orderPosition(c("prefers_rb"))
-#ordered_cm <- orderPosition(c("prefers_cm"))
-#ordered_lm <- orderPosition(c("prefers_lm","prefers_lw"))
-#ordered_rm <- orderPosition(c("prefers_rw","prefers_rm"))
-#ordered_st <- orderPosition(c("prefers_cf","prefers_st"))
+ordered_gk <- orderPosition(c("prefers_gk"))
+ordered_cb <- orderPosition(c("prefers_cb"))
+ordered_lb <- orderPosition(c("prefers_lb"))
+ordered_rb <- orderPosition(c("prefers_rb"))
+ordered_cm <- orderPosition(c("prefers_cm"))
+ordered_lm <- orderPosition(c("prefers_lm","prefers_lw"))
+ordered_rm <- orderPosition(c("prefers_rw","prefers_rm"))
+ordered_st <- orderPosition(c("prefers_cf","prefers_st"))
