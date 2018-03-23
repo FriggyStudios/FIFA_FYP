@@ -7,7 +7,7 @@ library(class)
 
 predictPosition <- function(nearestToMe){
   position <- c()
-  for(i in 156:182){
+  for(i in 64:90){
     position[i] <- 0
     for(j in 1:length(nearestToMe[1])){
      if(nearestToMe[[j,i]] == "True"){
@@ -35,21 +35,26 @@ ui <- fluidPage(
     
     # Inputs
     sidebarPanel(
-      checkboxInput(inputId = "findMe", label = "Find Me", value = FALSE),
-      checkboxInput(inputId = "render", label = "Render", value = TRUE),
+      checkboxInput(inputId = "render", label = "Render", value = FALSE),
+      selectInput(inputId = "player",
+                  label = "Player Compare",
+                  choices = df[,2],
+                  selected = "Lionel Messi"),
+      selectInput(inputId = "searchType",
+         label = "Search Type",
+         choices = c("Find Me","Player"),
+         selected = c("Find Me")), 
       tabsetPanel(type = "tabs",
-                  tabPanel("Player",
-                           uiOutput(outputId = "playerSearch")),
-                  tabPanel("Weights",
-                           uiOutput(outputId = 'weights')),
                   tabPanel("Me!",
                            uiOutput(outputId = "mePosition"),
                            uiOutput(outputId = "findMeStats")
-                           ),
+                  ),
+                  tabPanel("Weights",
+                           uiOutput(outputId = 'weights')),
                   tabPanel("Subsetting",
                            selectInput(inputId = "position",
                                        label = "Position",
-                                       choices = c(names(df)[c(156,160,163,165:170,172,173,181)]),
+                                       choices = c(names(df)[c(65,69,72,74:79,81,82,90)]),
                                        selected = c(),
                                        multiple = T),
                            
@@ -85,21 +90,21 @@ ui <- fluidPage(
     mainPanel(
       tabsetPanel(type = "tabs",
                   tabPanel("Table",
-        conditionalPanel( condition = "!input.findMe && input.render",
+        conditionalPanel( condition = "input.searchType != 'Find Me' && input.render",
           dataTableOutput(outputId = "tblSearch")
         ),
-        conditionalPanel( condition = "input.findMe && input.render",
+        conditionalPanel( condition = "input.searchType == 'Find Me' && input.render",
           textOutput("PredictedPosition"),
           textOutput("PredictedValue"),
           dataTableOutput(outputId = "tblFindMe")
         )),
                 tabPanel("Radar",
-        conditionalPanel( condition = "!input.findMe && input.render",
+        conditionalPanel( condition = "input.searchType != 'Find Me' && input.render",
           plotOutput('radarSearch'),
           textOutput("radarOutputSearch"),
           uiOutput(outputId = "radarSearchCompare")
         ),
-        conditionalPanel( condition = "input.findMe && input.render",
+        conditionalPanel( condition = "input.searchType == 'Find Me' && input.render",
           plotOutput('radarFindMe'),
           textOutput("radarOutputMe"),
           uiOutput(outputId = "radarMeCompare")
@@ -118,7 +123,7 @@ server <- function(input, output,session) {
   output$mePosition <- renderUI({
   selectInput(inputId = 'myPosition',
               label = 'Your Position',
-              choices = c(names(df)[c(156,160,163,165:170,172,173,181)]),
+              choices = c(names(df)[c(65,69,72,74:79,81,82,90)]),
               selected = "prefers_st")
   })
   
@@ -131,14 +136,6 @@ server <- function(input, output,session) {
                     value = 0)
       })
   })
-  
-  output$playerSearch <- renderUI({
-      selectInput(inputId = "player",
-                  label = "Player",
-                  choices = df[,2],
-                  selected = "Lionel Messi")
-  })
-  
   
   # The dynamic input definition
   output$weights <- renderUI({
@@ -181,8 +178,8 @@ server <- function(input, output,session) {
       }
         else { return (input[[paste0("myStat",i)]])}
       }),
-      lapply(64:180,function(i){i}),
-      lapply(181,function(i){
+      lapply(64:90,function(i){i}),
+      lapply(9,function(i){
       if(input$myPosition == "prefers_gk")
         'True'
       else

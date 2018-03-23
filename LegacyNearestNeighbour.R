@@ -2,7 +2,7 @@ library(dplyr)
 
 legacy_nearest <- function(x,compare) {
   distances <-  c()
-  if(compare[181] == "False") #prefers gk
+  if(compare[90] == "False") #prefers gk
     range <- 30:58
   else
     range <- 59:63

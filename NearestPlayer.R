@@ -3,7 +3,10 @@ library(class)
 
 nearest <- function(x,compare,weights= NULL,lengthReturn = 10,error = TRUE) {
   
-  if(compare[181] == "False") {#prefers gk
+  if(is.null(compare)){
+    return (NULL)
+  }
+  if(!is.null(compare[90]) && compare[90]== "False") {#prefers gk
     range <- 30:58
     x <- filter(x,prefers_gk == "False")
   }

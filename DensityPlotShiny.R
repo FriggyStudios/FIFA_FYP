@@ -18,7 +18,7 @@ ui <- fluidPage(
       
       selectInput(inputId = "varComparing", 
                   label = "Variable Comparing",
-                  choices = names(df)[c(6,9,10,13:23,30:63)],
+                  choices = names(df),
                   selected = "pac"),
       
       selectInput(inputId = "position",
